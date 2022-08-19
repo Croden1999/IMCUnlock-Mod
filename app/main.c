@@ -1,6 +1,6 @@
 /*
  * IMCUnlock
- * Copyright (C) 2018-2020 skgleba
+ * Copyright (C) 2018-2022 skgleba, mod by Croden1999 
  *
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
@@ -144,7 +144,7 @@ int dorfptable(const char *dst) {
 
 int rebuildPart(int mode) {
 	psvDebugScreenSetFgColor(COLOR_PURPLE);
-	if ((mode == 3) && (nomc_disabled)) {
+	if ((mode == 7) && (nomc_disabled)) {
 		printf("\nplease insert a memory card to continue\n");
 		return -1;
 	}
@@ -161,28 +161,36 @@ int rebuildPart(int mode) {
 	pmbr->partitions[0].code = 0xB;
 	pmbr->partitions[0].type = 0x6;
 	pmbr->partitions[0].flags = 0x00000fff;
-	printf("ud0- off:(MB)%d | sz:%d(MB)\n", CVMB(pmbr->partitions[0].off), CVMB(pmbr->partitions[0].sz));
+	printf("ud0- off:%d(MB) | sz:%d(MB)\n", CVMB(pmbr->partitions[0].off), CVMB(pmbr->partitions[0].sz));
 	// pd0
 	pmbr->partitions[1].off = 0x168000;
 	pmbr->partitions[1].sz = 0x98000;
 	pmbr->partitions[1].code = 0xE;
 	pmbr->partitions[1].type = 0x7;
 	pmbr->partitions[1].flags = 0x00000fff;
-	printf("pd0- off:(MB)%d | sz:%d(MB)\n", CVMB(pmbr->partitions[1].off), CVMB(pmbr->partitions[1].sz));
+	printf("pd0- off:%d(MB) | sz:%d(MB)\n", CVMB(pmbr->partitions[1].off), CVMB(pmbr->partitions[1].sz));
 	// ur0
 	pmbr->partitions[2].off = (mode == 1) ? 0x168000 : 0x200000;
 	if (mode == 1)
 		pmbr->partitions[2].sz = 0x98000;
 	else if (mode == 2)
+		pmbr->partitions[2].sz = 0x4B000;
+	else if (mode == 3)
+		pmbr->partitions[2].sz = 0x64000;
+	else if (mode == 4)
+		pmbr->partitions[2].sz = 0x100000;
+	else if (mode == 5)
+		pmbr->partitions[2].sz = 0x200000;
+	else if (mode == 6)
 		pmbr->partitions[2].sz = 0x300000;
 	else
 		pmbr->partitions[2].sz = uruxsz;
 	pmbr->partitions[2].code = 0x7;
 	pmbr->partitions[2].type = 0x7;
 	pmbr->partitions[2].flags = 0x00000fff;
-	printf("ur0- off:(MB)%d | sz:%d(MB)\n", CVMB(pmbr->partitions[2].off), CVMB(pmbr->partitions[2].sz));
+	printf("ur0- off:%d(MB) | sz:%d(MB)\n", CVMB(pmbr->partitions[2].off), CVMB(pmbr->partitions[2].sz));
 	// ux0 or nuffin
-	if (mode < 3) {
+	if (mode < 7) {
 		pmbr->partitions[3].off = (pmbr->partitions[2].off + pmbr->partitions[2].sz);
 		if (mode == 0)
 			pmbr->partitions[3].off = (pmbr->partitions[3].off - MBCV(102));
@@ -191,7 +199,7 @@ int rebuildPart(int mode) {
 		pmbr->partitions[3].type = 0x7;
 		pmbr->partitions[3].flags = 0x00000fff;
 		pmbr->partitions[4].sz = pmbr->partitions[3].sz;
-		printf("ux0- off:(MB)%d | sz:%d(MB)\n", CVMB(pmbr->partitions[3].off), CVMB(pmbr->partitions[3].sz));
+		printf("ux0- off:%d(MB) | sz:%d(MB)\n", CVMB(pmbr->partitions[3].off), CVMB(pmbr->partitions[3].sz));
 	} else {
 		pmbr->partitions[3].sz = uruxsz;
 		pmbr->partitions[4].sz = emmcsz;
@@ -204,15 +212,16 @@ int rebuildPart(int mode) {
 	return kimcu_work_mbrpart(1, mbr_part);
 }
 
-char mmit[][256] = {" -> 100MB ux0 partition"," -> Hybrid ur0-pd0 and 2.5GB ux0"," -> Default 2xxx storage configuration"," -> Default 1xxx storage configuration"," -> Dump/Flash the user partition table"," -> Exit"};
+char mmit[][256] = {" -> [1] 100MB ux0 partition"," -> [2] Hybrid ur0-pd0 and 2.5GB ux0"," -> [3] 2.4GB ux0 partition"," -> [4] 2.3GB ux0 partition"," -> [5] 2GB ux0 partition"," -> [6] 1.5GB ux0 partition"," -> [7] Default 2xxx storage configuration"," -> [8] Default 1xxx storage configuration"," -> [9] Dump/Flash the user partition table"," -> [10] Exit"};
 int sel = 0;
-int optct = 6;
+int optct = 10;
 
 void smenu(){
 	psvDebugScreenClear(COLOR_BLACK);
 	psvDebugScreenSetFgColor(COLOR_CYAN);
-	printf("                       IMCUnlock v4.0                            \n");
-	printf("                         By SKGleba                              \n");
+	printf("                    IMCUnlock v4.1 Mod                     \n");
+	printf("                        By SKGleba                         \n");
+	printf("                     Mod by Croden1999                   \n\n");
 	psvDebugScreenSetFgColor(COLOR_RED);
 	for(int i = 0; i < optct; i++){
 		if(sel==i){
@@ -272,10 +281,10 @@ switch_opts:
 	sceKernelDelayThread(0.3 * 1000 * 1000);
 	switch (get_key()) {
 		case SCE_CTRL_CROSS:
-			if (sel == 5)
+			if (sel == 9)
 				goto cleanup;
 			should_reboot = 1;
-			if (sel == 4)
+			if (sel == 8)
 				ret = dorfptable("ux0:data/scembr.part");
 			else
 				ret = rebuildPart(sel);

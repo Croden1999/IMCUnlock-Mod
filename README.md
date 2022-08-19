@@ -1,7 +1,7 @@
-# IMCUnlock
+# IMCUnlock-Mod
 This mod allows you to manage the internal user partitions on the PSP2 by modifying EMMC's Master Boot Record.
 
-![ref0](https://github.com/SKGleba/IMCUnlock/raw/master/ss/installer.jpg)
+![ref0](https://github.com/Croden1999/IMCUnlock-Mod/raw/master/ss/installer.jpg)
 
 
 # Installation:
