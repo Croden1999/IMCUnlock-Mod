@@ -14,6 +14,14 @@ This mod allows you to manage the internal user partitions on the PSP2 by modify
    - "100MB ux0 partition" - creates a ~100MB imc partition, requires formatting it via settings or safemode.
 
    - "Hybrid ur0-pd0 and 2.5GB ux0" - ur0 becomes imc, makes pd0 and ur0 share the same data region (pd0 = ur0).
+   
+   - "2.4GB ux0 partition" - a ~2.4GB imc partition with 150MB ur0, requires formatting it via settings or safemode.
+   
+   - "2.3GB ux0 partition" - a ~2.3GB imc partition with 200MB ur0, requires formatting it via settings or safemode.
+   
+   - "2GB ux0 partition" - a ~2GB imc partition with 500MB ur0, requires formatting it via settings or safemode.
+   
+   - "1.5GB ux0 partition" - a ~1.5GB imc partition with 1GB ur0, requires formatting it via settings or safemode.
  
    - "Default 2xxx storage configuration" - a ~1GB imc partition with 1.5GB ur0, requires formatting imc via settings or safemode.
 
@@ -49,4 +57,4 @@ This mod allows you to manage the internal user partitions on the PSP2 by modify
 - /pc/mbrtool lets advanced users create their own user partition table.
 - If you have enso_ex v4+ installed you should be able to recover from any possible lock.
 - To have a ~3GB imc create a small hybrid ur0-ud0(-pd0) and give the rest to imc.
-- With any serious issues DM SKGleba on twitter (twitter.com/skgleba)
+- With any serious issues DM SKGleba on twitter (twitter.com/skgleba).
