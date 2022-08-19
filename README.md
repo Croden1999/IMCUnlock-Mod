@@ -49,4 +49,4 @@ This mod allows you to manage the internal user partitions on the PSP2 by modify
 - /pc/mbrtool lets advanced users create their own user partition table.
 - If you have enso_ex v4+ installed you should be able to recover from any possible lock.
 - To have a ~3GB imc create a small hybrid ur0-ud0(-pd0) and give the rest to imc.
-- With any serious issues DM me on twitter (twitter.com/skgleba)
+- With any serious issues DM SKGleba on twitter (twitter.com/skgleba)
