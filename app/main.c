@@ -144,7 +144,7 @@ int dorfptable(const char *dst) {
 
 int rebuildPart(int mode) {
 	psvDebugScreenSetFgColor(COLOR_PURPLE);
-	if ((mode == 7) && (nomc_disabled)) {
+	if ((mode == 9) && (nomc_disabled)) {
 		printf("\nplease insert a memory card to continue\n");
 		return -1;
 	}
@@ -170,18 +170,20 @@ int rebuildPart(int mode) {
 	pmbr->partitions[1].flags = 0x00000fff;
 	printf("pd0- off:%d(MB) | sz:%d(MB)\n", CVMB(pmbr->partitions[1].off), CVMB(pmbr->partitions[1].sz));
 	// ur0
-	pmbr->partitions[2].off = (mode == 1) ? 0x168000 : 0x200000;
-	if (mode == 1)
+	pmbr->partitions[2].off = (mode == 2) ? 0x168000 : 0x200000;
+	if (mode == 2)
 		pmbr->partitions[2].sz = 0x98000;
-	else if (mode == 2)
-		pmbr->partitions[2].sz = 0x4B000;
 	else if (mode == 3)
-		pmbr->partitions[2].sz = 0x64000;
+		pmbr->partitions[2].sz = 0x4B000;
 	else if (mode == 4)
-		pmbr->partitions[2].sz = 0x100000;
+		pmbr->partitions[2].sz = 0x64000;
 	else if (mode == 5)
-		pmbr->partitions[2].sz = 0x200000;
+		pmbr->partitions[2].sz = 0x100000;
 	else if (mode == 6)
+		pmbr->partitions[2].sz = 0x200000;
+	else if (mode == 7)
+		pmbr->partitions[2].sz = 0x400000;
+	else if (mode == 8)
 		pmbr->partitions[2].sz = 0x300000;
 	else
 		pmbr->partitions[2].sz = uruxsz;
@@ -190,10 +192,12 @@ int rebuildPart(int mode) {
 	pmbr->partitions[2].flags = 0x00000fff;
 	printf("ur0- off:%d(MB) | sz:%d(MB)\n", CVMB(pmbr->partitions[2].off), CVMB(pmbr->partitions[2].sz));
 	// ux0 or nuffin
-	if (mode < 7) {
+	if (mode < 9) {
 		pmbr->partitions[3].off = (pmbr->partitions[2].off + pmbr->partitions[2].sz);
 		if (mode == 0)
 			pmbr->partitions[3].off = (pmbr->partitions[3].off - MBCV(102));
+		else if (mode == 1)
+			pmbr->partitions[3].off = (pmbr->partitions[3].off - MBCV(144));
 		pmbr->partitions[3].sz = (emmcsz - pmbr->partitions[3].off);
 		pmbr->partitions[3].code = 0x8;
 		pmbr->partitions[3].type = 0x7;
@@ -212,14 +216,14 @@ int rebuildPart(int mode) {
 	return kimcu_work_mbrpart(1, mbr_part);
 }
 
-char mmit[][256] = {" -> [1] 100MB ux0 partition"," -> [2] Hybrid ur0-pd0 and 2.5GB ux0"," -> [3] 2.4GB ux0 partition"," -> [4] 2.3GB ux0 partition"," -> [5] 2GB ux0 partition"," -> [6] 1.5GB ux0 partition"," -> [7] Default 2xxx storage configuration"," -> [8] Default 1xxx storage configuration"," -> [9] Dump/Flash the user partition table"," -> [10] Exit"};
+char mmit[][256] = {" -> [1] 100MB ux0 partition"," -> [2] 143MB ux0 partition"," -> [3] Hybrid ur0-pd0 and 2.5GB ux0"," -> [4] 2.4GB ux0 partition"," -> [5] 2.3GB ux0 partition"," -> [6] 2GB ux0 partition"," -> [7] 1.5GB ux0 partition"," -> [8] 0.5GB ux0 partition"," -> [9] Default 2xxx storage configuration"," -> [10] Default 1xxx storage configuration"," -> [11] Dump/Flash the user partition table"," -> [12] Exit"};
 int sel = 0;
-int optct = 10;
+int optct = 12;
 
 void smenu(){
 	psvDebugScreenClear(COLOR_BLACK);
 	psvDebugScreenSetFgColor(COLOR_CYAN);
-	printf("                    IMCUnlock v4.1 Mod                     \n");
+	printf("                     IMCUnlock v4.1.1                      \n");
 	printf("                        By SKGleba                         \n");
 	printf("                     Mod by Croden1999                   \n\n");
 	psvDebugScreenSetFgColor(COLOR_RED);
@@ -281,10 +285,10 @@ switch_opts:
 	sceKernelDelayThread(0.3 * 1000 * 1000);
 	switch (get_key()) {
 		case SCE_CTRL_CROSS:
-			if (sel == 9)
+			if (sel == 11)
 				goto cleanup;
 			should_reboot = 1;
-			if (sel == 8)
+			if (sel == 10)
 				ret = dorfptable("ux0:data/scembr.part");
 			else
 				ret = rebuildPart(sel);
